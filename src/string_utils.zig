@@ -173,3 +173,46 @@ test "startsWith" {
         try testing.expectEqual(expected, actual);
     }
 }
+
+// Concat two strings
+pub fn concat(allocator: std.mem.Allocator, base: []const u8, suffix: []const u8) ![]const u8 {
+    var result: []u8 = try allocator.alloc(u8, base.len + suffix.len);
+    for (base, 0..) |c, i| {
+        result[i] = c;
+    }
+    for (suffix, 0..) |c, i| {
+        result[base.len + i] = c;
+    }
+    return result;
+}
+
+test "concat" {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    var allocator = arena.allocator();
+    const inputs = [_][]const u8{
+        "hello world",
+        "ab ab",
+        "abab",
+        "a  b",
+    };
+
+    const suffixes = [_][]const u8{
+        "hello",
+        "ab",
+        "bab",
+        "asdfsdfs",
+    };
+
+    const expecteds = [_][]const u8{
+        "hello worldhello",
+        "ab abab",
+        "ababbab",
+        "a  basdfsdfs",
+    };
+
+    for (inputs, suffixes, expecteds) |s, suffix, expected| {
+        const actual = try concat(allocator, s, suffix);
+        try testing.expectEqualStrings(expected, actual);
+    }
+}
