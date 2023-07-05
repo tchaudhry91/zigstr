@@ -132,3 +132,44 @@ test "split" {
         }
     }
 }
+
+/// startsWith checks if the string starts with the given prefix.
+pub fn startsWith(s: []const u8, prefix: []const u8) bool {
+    if (prefix.len > s.len) {
+        return false;
+    }
+    for (prefix, 0..) |pc, i| {
+        if (pc != s[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+test "startsWith" {
+    const inputs = [_][]const u8{
+        "hello world",
+        "ab ab",
+        "abab",
+        "a  b",
+    };
+
+    const startsWiths = [_][]const u8{
+        "hello",
+        "ab",
+        "bab",
+        "asdfsdfs",
+    };
+
+    const expecteds = [_]bool{
+        true,
+        true,
+        false,
+        false,
+    };
+
+    for (inputs, startsWiths, expecteds) |s, prefix, expected| {
+        const actual = startsWith(s, prefix);
+        try testing.expectEqual(expected, actual);
+    }
+}
